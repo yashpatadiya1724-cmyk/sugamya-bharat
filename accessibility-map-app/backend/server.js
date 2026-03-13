@@ -77,9 +77,15 @@ app.post('/api/seed', async (req, res) => {
 });
 
 // Serve frontend for all other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  });
+} else {
+  app.get('*', (req, res) => {
+    res.status(404).json({ success: false, message: 'API route not found' });
+  });
+}
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -87,12 +93,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: err.message || 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`
 🚀 Sugamya Bharat Server running on http://localhost:${PORT}
 ♿ Vikshit Bharat 2047 - Accessibility Mapping Platform
 📊 API: http://localhost:${PORT}/api
 🌐 Frontend: http://localhost:${PORT}
 💾 Seed demo data: POST http://localhost:${PORT}/api/seed
-  `);
-});
+    `);
+  });
+}
+
+// Export the Express app for Vercel serverless functions
+module.exports = app;
