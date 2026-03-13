@@ -2,22 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/server.js",
+      "src": "accessibility-map-app/backend/server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "frontend/**",
+      "src": "accessibility-map-app/frontend/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/server.js"
+      "dest": "accessibility-map-app/backend/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/$1"
+      "dest": "accessibility-map-app/frontend/$1"
     }
   ]
 }
