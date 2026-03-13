@@ -22,6 +22,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       animation: float 3s ease-in-out infinite;
     }
@@ -97,6 +98,7 @@
       left: 50%;
       transform: translateX(-50%);
       background: rgba(5,13,26,0.85);
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border);
       border-radius: 100px;
@@ -105,6 +107,35 @@
       color: var(--text-secondary);
       white-space: nowrap;
     }
+
+    /* Extracted Inline Styles */
+    .stat-icon { font-size: 1.5rem; }
+    .stat-value { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.1rem; }
+    .stat-saffron { color: var(--saffron); }
+    .stat-green { color: var(--green-light); }
+    .stat-blue { color: var(--blue-light); }
+    .stat-label { font-size: 0.72rem; color: var(--text-muted); }
+    .mission-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .mb-5rem { margin-bottom: 5rem; }
+    .text-saffron { color: var(--saffron); }
+    .feature-icon-saffron { background: rgba(255,153,51,0.1); }
+    .feature-icon-green { background: rgba(19,136,8,0.1); }
+    .feature-icon-blue { background: rgba(30,136,229,0.1); }
+    .feature-icon-yellow { background: rgba(255,215,0,0.1); }
+    .feature-icon-red { background: rgba(255,23,68,0.1); }
+    .feature-icon-purple { background: rgba(138,43,226,0.1); }
+    .vikshit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; position: relative; z-index: 1; }
+    .mb-1rem { margin-bottom: 1rem; }
+    .vikshit-heading { font-size: clamp(1.6rem, 2.5vw, 2.2rem); font-weight: 800; margin-bottom: 1.2rem; }
+    .vikshit-p1 { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .vikshit-p2 { color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem; }
+    .vikshit-actions { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+    .cta-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .cta-heading { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+    .cta-p { color: var(--text-secondary); max-width: 500px; margin: 0 auto 2rem; line-height: 1.7; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .mt-1rem { margin-top: 1rem; }
+    .w-120px { width: 120px; }
   </style>
 </head>
 <body>
@@ -156,24 +187,24 @@
       </div>
       <div class="hero-floating-stats stagger-children">
         <div class="floating-stat">
-          <span style="font-size:1.5rem">📍</span>
+          <span class="stat-icon">📍</span>
           <div>
             <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--saffron)" id="stat-locations">1,240+</div>
-            <div style="font-size:0.72rem;color:var(--text-muted)">Locations Mapped</div>
+            <div class="stat-label">Locations Mapped</div>
           </div>
         </div>
         <div class="floating-stat">
-          <span style="font-size:1.5rem">🏙️</span>
+          <span class="stat-icon">🏙️</span>
           <div>
             <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--green-light)" id="stat-cities">28</div>
-            <div style="font-size:0.72rem;color:var(--text-muted)">Cities Covered</div>
+            <div class="stat-label">Cities Covered</div>
           </div>
         </div>
         <div class="floating-stat">
-          <span style="font-size:1.5rem">👥</span>
+          <span class="stat-icon">👥</span>
           <div>
             <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--blue-light)" id="stat-users">4,500+</div>
-            <div style="font-size:0.72rem;color:var(--text-muted)">Contributors</div>
+            <div class="stat-label">Contributors</div>
           </div>
         </div>
       </div>
@@ -188,14 +219,14 @@
 </section>
 
 <!-- Mission Section -->
-<div style="max-width:1200px;margin:0 auto;padding:0 2rem">
-  <div class="tricolor-bar" style="margin-bottom:5rem"></div>
+<div class="mission-container">
+  <div class="tricolor-bar mb-5rem"></div>
 </div>
 
 <section class="section" id="mission">
   <div class="section-title">
     <div class="section-tag">🎯 Our Mission</div>
-    <h2 class="section-heading">Breaking Barriers for <span style="color:var(--saffron)">27 Crore</span> Indians</h2>
+    <h2 class="section-heading">Breaking Barriers for <span class="text-saffron">27 Crore</span> Indians</h2>
     <p class="section-sub">India has the world's largest differently-abled population. We're building the infrastructure data layer they deserve.</p>
   </div>
   <div class="mission-cards stagger-children">
@@ -267,37 +298,37 @@
 <section class="section">
   <div class="section-title">
     <div class="section-tag">⚡ Features</div>
-    <h2 class="section-heading">Built for <span style="color:var(--saffron)">Inclusion</span></h2>
+    <h2 class="section-heading">Built for <span class="text-saffron">Inclusion</span></h2>
     <p class="section-sub">A platform designed with and for differently-abled citizens of India.</p>
   </div>
   <div class="features-grid stagger-children">
     <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(255,153,51,0.1)">🗺️</div>
+      <div class="feature-icon feature-icon-saffron">🗺️</div>
       <h3>Interactive Accessibility Map</h3>
       <p>Real-time map with color-coded markers showing fully, partially, or inaccessible locations across 28 Indian cities.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(19,136,8,0.1)">✅</div>
+      <div class="feature-icon feature-icon-green">✅</div>
       <h3>Community Verification</h3>
       <p>5-verification system ensures data accuracy. Upvote, downvote, and confirm accessibility claims with photo evidence.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(30,136,229,0.1)">📊</div>
+      <div class="feature-icon feature-icon-blue">📊</div>
       <h3>Accessibility Score</h3>
       <p>10-point scoring across ramps, elevators, toilet access, door width, braille signage, and staff assistance.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(255,215,0,0.1)">📸</div>
+      <div class="feature-icon feature-icon-yellow">📸</div>
       <h3>Photo Evidence Upload</h3>
       <p>Upload photos and short videos to prove accessibility claims. Builds trust and helps users make informed decisions.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(255,23,68,0.1)">🏆</div>
+      <div class="feature-icon feature-icon-red">🏆</div>
       <h3>City Leaderboard</h3>
       <p>Track which Indian cities lead in accessibility. Gamified civic participation drives improvement nationwide.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(138,43,226,0.1)">🤖</div>
+      <div class="feature-icon feature-icon-purple">🤖</div>
       <h3>AI Accessibility Analysis</h3>
       <p>Claude AI analyzes uploaded photos to auto-detect accessibility features and suggest improvements.</p>
     </div>
@@ -307,23 +338,23 @@
 <!-- Viksit Bharat Section -->
 <section class="section">
   <div class="Viksit-section">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;position:relative;z-index:1">
+    <div class="vikshit-grid">
       <div>
-        <div class="section-tag" style="margin-bottom:1rem">🇮🇳 Viksit Bharat 2047</div>
-        <h2 style="font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:800;margin-bottom:1.2rem">
-          Pillar 6: <span style="color:var(--saffron)">Social Inclusion</span> & Justice
+        <div class="section-tag mb-1rem">🇮🇳 Viksit Bharat 2047</div>
+        <h2 class="vikshit-heading">
+          Pillar 6: <span class="text-saffron">Social Inclusion</span> & Justice
         </h2>
-        <p style="color:var(--text-secondary);line-height:1.8;margin-bottom:1.5rem;font-size:0.95rem">
+        <p class="vikshit-p1">
           India's vision of becoming a developed nation by 2047 requires that progress reaches every citizen. 
           Under Nari Shakti and Sugamya Bharat, we commit to an India where no one is left behind—
           where differently-abled, elderly, and marginalized communities enjoy equal access to public life.
         </p>
-        <p style="color:var(--text-secondary);line-height:1.8;font-size:0.95rem">
-          <strong style="color:var(--saffron)">Sugamya Bharat Abhiyan</strong> aims to make 
+        <p class="vikshit-p2">
+          <strong class="text-saffron">Sugamya Bharat Abhiyan</strong> aims to make 
           public spaces, transport, and digital infrastructure universally accessible. 
           This platform is our contribution to that mission.
         </p>
-        <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap">
+        <div class="vikshit-actions">
           <a href="map.html" class="btn btn-primary">Explore Map →</a>
           <a href="dashboard.html" class="btn btn-secondary">View Progress →</a>
         </div>
@@ -369,14 +400,14 @@
 <!-- CTA Section -->
 <section class="section">
   <div class="cta-banner">
-    <div style="font-size:3rem;margin-bottom:1rem">🇮🇳</div>
-    <h2 style="font-size:2rem;font-weight:800;margin-bottom:1rem">
+    <div class="cta-icon">🇮🇳</div>
+    <h2 class="cta-heading">
       Join the <span class="india-text">Sugamya Bharat</span> Movement
     </h2>
-    <p style="color:var(--text-secondary);max-width:500px;margin:0 auto 2rem;line-height:1.7">
+    <p class="cta-p">
       Every location you add, every verification you confirm, makes India more accessible for 27 crore differently-abled citizens.
     </p>
-    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <div class="cta-actions">
       <a href="register.html" class="btn btn-primary btn-lg">🚀 Start Contributing</a>
       <a href="map.html" class="btn btn-outline-saffron btn-lg">🗺️ View Map</a>
     </div>
@@ -389,8 +420,8 @@
     <div class="footer-brand">
       <div class="logo">♿ Sugamya Bharat</div>
       <p>A crowdsourced accessibility mapping platform for India, built under the Viksit Bharat 2047 initiative – Pillar 6: Social Inclusion & Justice.</p>
-      <div style="margin-top:1rem">
-        <div class="tricolor-bar" style="width:120px"></div>
+      <div class="mt-1rem">
+        <div class="tricolor-bar w-120px"></div>
       </div>
     </div>
     <div>
