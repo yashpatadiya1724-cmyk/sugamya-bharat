@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Sugamya Bharat</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; padding-top: 70px; }
+    .admin-sidebar { width: 240px; background: var(--navy-light); border-right: 1px solid var(--border); padding: 1.5rem 1rem; position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto; flex-shrink: 0; }
+    .admin-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: var(--transition); margin-bottom: 4px; }
+    .admin-nav a:hover, .admin-nav a.active { background: rgba(255,153,51,0.1); color: var(--saffron); }
+    .admin-main { flex: 1; padding: 2rem; overflow-x: hidden; }
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+    .action-btn { padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 600; font-family: 'Mukta', sans-serif; transition: var(--transition); }
+    .btn-approve { background: rgba(0,200,83,0.15); color: var(--fully-accessible); border: 1px solid rgba(0,200,83,0.3); }
+    .btn-approve:hover { background: rgba(0,200,83,0.3); }
+    .btn-reject { background: rgba(255,23,68,0.15); color: var(--not-accessible); border: 1px solid rgba(255,23,68,0.3); }
+    .btn-reject:hover { background: rgba(255,23,68,0.3); }
+    .btn-delete { background: rgba(255,23,68,0.15); color: var(--not-accessible); border: 1px solid rgba(255,23,68,0.3); }
+    .btn-delete:hover { background: rgba(255,23,68,0.3); }
+    .stat-mini { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.2rem; display: flex; align-items: center; gap: 12px; }
+    .stat-mini .num { font-family: 'Baloo 2', sans-serif; font-size: 1.5rem; font-weight: 800; }
+    .stat-mini .lbl { font-size: 0.75rem; color: var(--text-muted); }
+    @media(max-width:768px){ .admin-sidebar{display:none;} .admin-main{padding:1rem;} }
+  </style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">⚙️</div>
+    <div class="nav-title"><span>Admin Panel</span><span>Sugamya Bharat</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="map.html">🗺️ Map</a></li>
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-cta" id="nav-auth"></div>
+</nav>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <div style="padding:0 4px;margin-bottom:1.5rem">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Admin</div>
+      <div style="font-size:0.88rem;font-weight:600;color:var(--saffron)" id="admin-name">Loading...</div>
+    </div>
+    <nav class="admin-nav">
+      <a href="#" class="active" onclick="showPanel('overview')">📊 Overview</a>
+      <a href="#" onclick="showPanel('pending-locations')">⏳ Pending Locations</a>
+      <a href="#" onclick="showPanel('all-locations')">📍 All Locations</a>
+      <a href="#" onclick="showPanel('users')">👥 Manage Users</a>
+      <a href="#" onclick="showPanel('seed')">🌱 Seed Demo Data</a>
+    </nav>
+    <div style="position:absolute;bottom:1.5rem;left:1rem;right:1rem">
+      <a href="index.html" class="btn btn-secondary btn-sm" style="display:block;text-align:center">← Back to App</a>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <!-- Overview -->
+    <div class="admin-panel active" id="panel-overview">
+      <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:1.5rem">📊 Admin Overview</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem" id="admin-stats">
+        <div class="stat-mini"><div style="font-size:1.5rem">📍</div><div><div class="num" style="color:var(--saffron)" id="a-total">-</div><div class="lbl">Total Locations</div></div></div>
+        <div class="stat-mini"><div style="font-size:1.5rem">⏳</div><div><div class="num" style="color:var(--partially-accessible)" id="a-pending">-</div><div class="lbl">Pending Review</div></div></div>
+        <div class="stat-mini"><div style="font-size:1.5rem">✅</div><div><div class="num" style="color:var(--fully-accessible)" id="a-verified">-</div><div class="lbl">Verified</div></div></div>
+        <div class="stat-mini"><div style="font-size:1.5rem">👥</div><div><div class="num" style="color:var(--blue-light)" id="a-users">-</div><div class="lbl">Users</div></div></div>
+      </div>
+      <div style="padding:1.5rem;background:rgba(255,153,51,0.05);border:1px solid rgba(255,153,51,0.15);border-radius:var(--radius)">
+        <h3 style="font-size:1rem;margin-bottom:1rem;color:var(--saffron)">⚡ Quick Actions</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="showPanel('pending-locations')" class="btn btn-primary btn-sm">⏳ Review Pending</button>
+          <button onclick="showPanel('users')" class="btn btn-secondary btn-sm">👥 Manage Users</button>
+          <button onclick="showPanel('seed')" class="btn btn-secondary btn-sm">🌱 Seed Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Locations -->
+    <div class="admin-panel" id="panel-pending-locations">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <h2 style="font-size:1.5rem;font-weight:800">⏳ Pending Locations</h2>
+        <button onclick="loadPendingLocations()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+      </div>
+      <div id="pending-list">
+        <div style="text-align:center;padding:3rem"><div class="loader" style="margin:0 auto"></div></div>
+      </div>
+    </div>
+
+    <!-- All Locations -->
+    <div class="admin-panel" id="panel-all-locations">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <h2 style="font-size:1.5rem;font-weight:800">📍 All Locations</h2>
+        <button onclick="loadAllLocations()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+      </div>
+      <div class="table-container">
+        <table id="locations-table">
+          <thead><tr><th>Name</th><th>City</th><th>Type</th><th>Score</th><th>Status</th><th>Verified</th><th>Actions</th></tr></thead>
+          <tbody id="locations-tbody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="loader" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div class="admin-panel" id="panel-users">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <h2 style="font-size:1.5rem;font-weight:800">👥 Manage Users</h2>
+        <button onclick="loadUsers()" class="btn btn-secondary btn-sm">🔄 Refresh</button>
+      </div>
+      <div class="table-container">
+        <table id="users-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>City</th><th>Contributions</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="loader" style="margin:0 auto"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Seed -->
+    <div class="admin-panel" id="panel-seed">
+      <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:1.5rem">🌱 Seed Demo Data</h2>
+      <div class="card" style="max-width:500px">
+        <p style="font-size:0.9rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1.5rem">
+          Seeds the database with 10 demo accessibility locations across major Indian cities. Also creates an admin user.
+        </p>
+        <div style="padding:1rem;background:rgba(255,153,51,0.05);border:1px solid rgba(255,153,51,0.15);border-radius:var(--radius-sm);margin-bottom:1.5rem">
+          <p style="font-size:0.82rem;color:var(--text-secondary)">Admin credentials will be:</p>
+          <p style="font-size:0.85rem;margin-top:4px"><strong style="color:var(--saffron)">Email:</strong> admin@sugamyabharat.in</p>
+          <p style="font-size:0.85rem"><strong style="color:var(--saffron)">Password:</strong> Admin@123</p>
+        </div>
+        <button onclick="seedData()" class="btn btn-primary" id="seed-btn">🌱 Seed Demo Data</button>
+        <div id="seed-result" style="margin-top:1rem;display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/auth.js"></script>
+<script>
+const TYPE_LABELS = { wheelchair_ramp:'Ramp',accessible_toilet:'Toilet',low_floor_bus:'Bus',metro_station:'Metro',elevator:'Elevator',accessible_parking:'Parking',hospital:'Hospital',government_office:'Govt Office',public_transport:'Transport',other:'Other' };
+const TYPE_ICONS = { wheelchair_ramp:'🛤️',accessible_toilet:'🚻',low_floor_bus:'🚌',metro_station:'🚇',elevator:'🛗',accessible_parking:'🅿️',hospital:'🏥',government_office:'🏛️',public_transport:'🚉',other:'📍' };
+
+document.addEventListener('DOMContentLoaded', () => {
+  updateNavbar();
+  const user = getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    showToast('Admin access required', 'error');
+    setTimeout(() => window.location = 'index.html', 1000);
+    return;
+  }
+  document.getElementById('admin-name').textContent = user.name + ' ⚙️';
+  loadOverview();
+});
+
+function showPanel(id) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+  event?.target?.classList.add('active');
+
+  if (id === 'pending-locations') loadPendingLocations();
+  else if (id === 'all-locations') loadAllLocations();
+  else if (id === 'users') loadUsers();
+}
+
+async function loadOverview() {
+  try {
+    const res = await fetch('/api/locations/dashboard');
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('a-total').textContent = data.stats.totalLocations;
+      document.getElementById('a-pending').textContent = data.stats.pendingLocations;
+      document.getElementById('a-verified').textContent = data.stats.verifiedLocations;
+      document.getElementById('a-users').textContent = data.stats.totalUsers;
+    }
+  } catch {}
+}
+
+async function loadPendingLocations() {
+  const el = document.getElementById('pending-list');
+  el.innerHTML = '<div style="text-align:center;padding:3rem"><div class="loader" style="margin:0 auto"></div></div>';
+  try {
+    const res = await fetch('/api/locations/pending', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    const data = await res.json();
+    if (!data.locations?.length) { el.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">No pending locations! 🎉</div>'; return; }
+    el.innerHTML = `<div style="display:grid;gap:1rem">${data.locations.map(loc => `
+      <div class="card" style="border-color:rgba(255,214,0,0.2)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+          <div>
+            <div style="font-weight:700;margin-bottom:4px">${loc.name} ${TYPE_ICONS[loc.accessibilityType]||''}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted)">📍 ${loc.city} · Submitted by ${loc.createdBy?.name || 'Unknown'} · Score: ${loc.accessibilityScore}/10</div>
+            ${loc.description ? `<p style="font-size:0.82rem;color:var(--text-secondary);margin-top:8px;max-width:600px">${loc.description.slice(0,200)}${loc.description.length>200?'...':''}</p>` : ''}
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button onclick="updateStatus('${loc._id}','approved')" class="action-btn btn-approve">✅ Approve</button>
+            <button onclick="updateStatus('${loc._id}','rejected')" class="action-btn btn-reject">❌ Reject</button>
+            <button onclick="deleteLocation('${loc._id}')" class="action-btn btn-delete">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    `).join('')}</div>`;
+  } catch { el.innerHTML = '<div style="color:var(--not-accessible);padding:2rem">Error loading pending locations.</div>'; }
+}
+
+async function loadAllLocations() {
+  const tbody = document.getElementById('locations-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="loader" style="margin:0 auto"></div></td></tr>';
+  try {
+    const res = await fetch('/api/locations?limit=100');
+    const data = await res.json();
+    if (!data.locations?.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)">No locations found.</td></tr>'; return; }
+    tbody.innerHTML = data.locations.map(loc => `
+      <tr>
+        <td><strong>${loc.name}</strong></td>
+        <td>${loc.city}</td>
+        <td><span class="badge badge-blue">${TYPE_ICONS[loc.accessibilityType]||''} ${TYPE_LABELS[loc.accessibilityType]||loc.accessibilityType}</span></td>
+        <td style="color:var(--saffron);font-weight:700">${loc.accessibilityScore}/10</td>
+        <td><span class="badge ${loc.accessibilityStatus==='fully_accessible'?'badge-green':loc.accessibilityStatus==='partially_accessible'?'badge-yellow':'badge-red'}">${loc.accessibilityStatus?.replace(/_/g,' ')}</span></td>
+        <td>${loc.verified ? '✅' : '⏳'}</td>
+        <td><button onclick="deleteLocation('${loc._id}')" class="action-btn btn-delete">🗑️ Delete</button></td>
+      </tr>
+    `).join('');
+  } catch { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--not-accessible);padding:1rem">Error loading locations.</td></tr>'; }
+}
+
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem"><div class="loader" style="margin:0 auto"></div></td></tr>';
+  try {
+    const res = await fetch('/api/auth/users', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    const data = await res.json();
+    if (!data.users?.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)">No users found.</td></tr>'; return; }
+    tbody.innerHTML = data.users.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td style="font-size:0.8rem;color:var(--text-muted)">${u.email}</td>
+        <td><span class="role-chip role-${u.role}">${u.role}</span></td>
+        <td>${u.city || '-'}</td>
+        <td style="color:var(--saffron);font-weight:700">${u.contributionsCount}</td>
+        <td><span class="${u.isActive!==false?'badge badge-verified':'badge badge-red'}">${u.isActive!==false?'Active':'Inactive'}</span></td>
+        <td style="display:flex;gap:6px">
+          <button onclick="changeRole('${u._id}','contributor')" class="action-btn btn-approve" style="font-size:0.7rem">⭐ Promote</button>
+          <button onclick="toggleUser('${u._id}',${u.isActive!==false})" class="action-btn btn-reject" style="font-size:0.7rem">${u.isActive!==false?'🚫 Block':'✅ Unblock'}</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--not-accessible);padding:1rem">Error loading users.</td></tr>'; }
+}
+
+async function updateStatus(id, status) {
+  const res = await fetch(`/api/locations/${id}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json','Authorization':'Bearer '+getToken() },
+    body: JSON.stringify({ status })
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast(`Location ${status}!`, 'success');
+    loadPendingLocations();
+    loadOverview();
+  } else { showToast(data.message, 'error'); }
+}
+
+async function deleteLocation(id) {
+  if (!confirm('Delete this location permanently?')) return;
+  const res = await fetch(`/api/locations/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + getToken() } });
+  const data = await res.json();
+  if (data.success) { showToast('Location deleted.', 'success'); loadPendingLocations(); loadAllLocations(); }
+  else showToast(data.message, 'error');
+}
+
+async function changeRole(userId, role) {
+  const res = await fetch(`/api/auth/users/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json','Authorization':'Bearer '+getToken() },
+    body: JSON.stringify({ role })
+  });
+  const data = await res.json();
+  if (data.success) { showToast('Role updated!', 'success'); loadUsers(); }
+  else showToast(data.message, 'error');
+}
+
+async function toggleUser(userId, currentlyActive) {
+  const res = await fetch(`/api/auth/users/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type':'application/json','Authorization':'Bearer '+getToken() },
+    body: JSON.stringify({ isActive: !currentlyActive })
+  });
+  const data = await res.json();
+  if (data.success) { showToast(`User ${!currentlyActive?'unblocked':'blocked'}!`, 'success'); loadUsers(); }
+  else showToast(data.message, 'error');
+}
+
+async function seedData() {
+  const btn = document.getElementById('seed-btn');
+  const result = document.getElementById('seed-result');
+  btn.innerHTML = '<span class="loader"></span> Seeding...';
+  btn.disabled = true;
+  result.style.display = 'none';
+  try {
+    const res = await fetch('/api/seed', { method: 'POST' });
+    const data = await res.json();
+    result.style.display = 'block';
+    if (data.success) {
+      result.innerHTML = `<div style="padding:12px;background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);border-radius:8px;font-size:0.85rem;color:var(--fully-accessible)">${data.message}</div>`;
+      showToast('Demo data seeded!', 'success');
+      loadOverview();
+    } else { result.innerHTML = `<div style="padding:12px;background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);border-radius:8px;font-size:0.85rem;color:var(--not-accessible)">${data.message}</div>`; }
+  } catch { result.innerHTML = '<div style="color:var(--not-accessible);font-size:0.85rem">Server error.</div>'; result.style.display = 'block'; }
+  btn.innerHTML = '🌱 Seed Demo Data';
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>

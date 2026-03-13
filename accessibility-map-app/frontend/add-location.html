@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Location – Sugamya Bharat</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    #pick-map { height: 300px; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .preview-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
+    .ai-result { padding: 1rem; background: rgba(138,43,226,0.1); border: 1px solid rgba(138,43,226,0.3); border-radius: var(--radius-sm); margin-top: 1rem; font-size: 0.85rem; line-height: 1.7; }
+    .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 2.5rem; }
+    .step { display: flex; align-items: center; gap: 8px; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; transition: var(--transition); }
+    .step-num.done { background: var(--green); color: white; }
+    .step-num.active { background: var(--saffron); color: white; }
+    .step-num.pending { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); }
+    .step-label { font-size: 0.78rem; color: var(--text-muted); }
+    .step-label.active { color: var(--saffron); font-weight: 600; }
+    .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 8px; min-width: 20px; }
+    .step-line.done { background: var(--green); }
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+  </style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">♿</div>
+    <div class="nav-title"><span>Sugamya Bharat</span><span>Vikshit Bharat 2047</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="map.html">🗺️ Map</a></li>
+    <li><a href="add-location.html" class="active">➕ Add Location</a></li>
+    <li><a href="verify.html">✅ Verify</a></li>
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-cta" id="nav-auth"></div>
+</nav>
+
+<div class="page-header">
+  <div class="section-tag">➕ Contribute</div>
+  <h1>Add Accessible Location</h1>
+  <p>Report an accessible (or inaccessible) location to help differently-abled citizens across India.</p>
+</div>
+
+<div style="max-width:800px;margin:0 auto;padding:0 1.5rem 4rem">
+
+  <!-- Step Indicator -->
+  <div class="step-indicator" id="step-indicator">
+    <div class="step">
+      <div class="step-num active" id="snum-1">1</div>
+      <div class="step-label active" id="slbl-1">Basic Info</div>
+    </div>
+    <div class="step-line" id="sline-1"></div>
+    <div class="step">
+      <div class="step-num pending" id="snum-2">2</div>
+      <div class="step-label" id="slbl-2">Location</div>
+    </div>
+    <div class="step-line" id="sline-2"></div>
+    <div class="step">
+      <div class="step-num pending" id="snum-3">3</div>
+      <div class="step-label" id="slbl-3">Accessibility</div>
+    </div>
+    <div class="step-line" id="sline-3"></div>
+    <div class="step">
+      <div class="step-num pending" id="snum-4">4</div>
+      <div class="step-label" id="slbl-4">Evidence</div>
+    </div>
+  </div>
+
+  <form id="add-form" enctype="multipart/form-data">
+    <!-- Step 1: Basic Info -->
+    <div class="section-panel active" id="panel-1">
+      <div class="card" style="margin-bottom:1.5rem">
+        <h3 style="margin-bottom:1.5rem;color:var(--saffron)">📋 Basic Information</h3>
+        <div class="form-group">
+          <label class="form-label">Location Name <span class="required">*</span></label>
+          <input type="text" class="form-input" id="loc-name" placeholder="e.g. Ahmedabad Metro - Vastral Gam" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label class="form-label">City <span class="required">*</span></label>
+            <select class="form-input" id="loc-city" required>
+              <option value="">Select City</option>
+              <option>Ahmedabad</option><option>New Delhi</option><option>Mumbai</option>
+              <option>Bangalore</option><option>Chennai</option><option>Hyderabad</option>
+              <option>Pune</option><option>Kolkata</option><option>Jaipur</option>
+              <option>Lucknow</option><option>Chandigarh</option><option>Bhopal</option>
+              <option>Nagpur</option><option>Surat</option><option>Indore</option>
+              <option>Patna</option><option>Kochi</option><option>Coimbatore</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location Type <span class="required">*</span></label>
+            <select class="form-input" id="loc-type" required>
+              <option value="">Select Type</option>
+              <option value="wheelchair_ramp">🛤️ Wheelchair Ramp</option>
+              <option value="accessible_toilet">🚻 Accessible Toilet</option>
+              <option value="low_floor_bus">🚌 Low-Floor Bus</option>
+              <option value="metro_station">🚇 Metro Station</option>
+              <option value="elevator">🛗 Elevator</option>
+              <option value="accessible_parking">🅿️ Accessible Parking</option>
+              <option value="hospital">🏥 Hospital</option>
+              <option value="government_office">🏛️ Government Office</option>
+              <option value="public_transport">🚉 Public Transport</option>
+              <option value="other">📍 Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Address <span class="required">*</span></label>
+          <input type="text" class="form-input" id="loc-address" placeholder="Building/Area, Street, City, State" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" id="loc-desc" placeholder="Describe the accessibility features (or barriers) at this location. Be specific to help others." rows="4"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button type="button" onclick="goStep(2)" class="btn btn-primary">Next: Set Location →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Map Location -->
+    <div class="section-panel" id="panel-2">
+      <div class="card" style="margin-bottom:1.5rem">
+        <h3 style="margin-bottom:1rem;color:var(--saffron)">📍 Pin Location on Map</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem">Click on the map to drop a pin, or use the buttons below to find the location.</p>
+
+        <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+          <button type="button" onclick="useMyLocation()" class="btn btn-secondary btn-sm">📍 Use My Location</button>
+          <button type="button" onclick="geocodeAddress()" class="btn btn-secondary btn-sm">🔍 Search Address</button>
+        </div>
+
+        <div id="pick-map"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
+          <div class="form-group">
+            <label class="form-label">Latitude <span class="required">*</span></label>
+            <input type="number" class="form-input" id="loc-lat" placeholder="e.g. 23.0225" step="0.0001" required readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Longitude <span class="required">*</span></label>
+            <input type="number" class="form-input" id="loc-lng" placeholder="e.g. 72.5714" step="0.0001" required readonly />
+          </div>
+        </div>
+        <div id="coords-info" style="font-size:0.8rem;color:var(--text-muted);margin-top:-0.5rem;margin-bottom:0.5rem"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <button type="button" onclick="goStep(1)" class="btn btn-secondary">← Back</button>
+        <button type="button" onclick="goStep(3)" class="btn btn-primary">Next: Rate Accessibility →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Accessibility Score -->
+    <div class="section-panel" id="panel-3">
+      <div class="card" style="margin-bottom:1.5rem">
+        <h3 style="margin-bottom:0.5rem;color:var(--saffron)">♿ Accessibility Features</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem">Check all features that are available at this location. This generates the Accessibility Score.</p>
+
+        <div class="score-grid">
+          <div class="score-item" id="si-ramp">
+            <input type="checkbox" id="f-ramp" /><label for="f-ramp">♿ Wheelchair Ramp</label>
+          </div>
+          <div class="score-item" id="si-elevator">
+            <input type="checkbox" id="f-elevator" /><label for="f-elevator">🛗 Elevator / Lift</label>
+          </div>
+          <div class="score-item" id="si-doorWidth">
+            <input type="checkbox" id="f-doorWidth" /><label for="f-doorWidth">🚪 Wide Doors (90cm+)</label>
+          </div>
+          <div class="score-item" id="si-accessibleToilet">
+            <input type="checkbox" id="f-accessibleToilet" /><label for="f-accessibleToilet">🚻 Accessible Toilet</label>
+          </div>
+          <div class="score-item" id="si-accessibleParking">
+            <input type="checkbox" id="f-accessibleParking" /><label for="f-accessibleParking">🅿️ Accessible Parking</label>
+          </div>
+          <div class="score-item" id="si-brailleSignage">
+            <input type="checkbox" id="f-brailleSignage" /><label for="f-brailleSignage">⠿ Braille Signage</label>
+          </div>
+          <div class="score-item" id="si-audioAnnouncement">
+            <input type="checkbox" id="f-audioAnnouncement" /><label for="f-audioAnnouncement">🔊 Audio Announcements</label>
+          </div>
+          <div class="score-item" id="si-tactilePath">
+            <input type="checkbox" id="f-tactilePath" /><label for="f-tactilePath">👣 Tactile Floor Path</label>
+          </div>
+          <div class="score-item" id="si-wheelchairRental">
+            <input type="checkbox" id="f-wheelchairRental" /><label for="f-wheelchairRental">♿ Wheelchair Rental</label>
+          </div>
+          <div class="score-item" id="si-staffAssistance">
+            <input type="checkbox" id="f-staffAssistance" /><label for="f-staffAssistance">👤 Staff Assistance</label>
+          </div>
+        </div>
+
+        <!-- Live Score Preview -->
+        <div style="margin-top:2rem;padding:1.5rem;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius);text-align:center" id="score-preview">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem">Live Accessibility Score</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem">
+            <div id="score-circle" style="width:80px;height:80px;border-radius:50%;border:4px solid var(--text-muted);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:1.8rem;font-weight:800;color:var(--text-muted);transition:all 0.3s">0</div>
+            <div style="text-align:left">
+              <div id="score-label" style="font-size:1rem;font-weight:700;color:var(--text-muted)">Not Rated</div>
+              <div id="score-sub" style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">Check features above</div>
+            </div>
+          </div>
+          <div class="progress-bar" style="margin-top:1rem">
+            <div id="score-bar" class="progress-fill" style="width:0%;background:var(--text-muted);transition:all 0.5s"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <button type="button" onclick="goStep(2)" class="btn btn-secondary">← Back</button>
+        <button type="button" onclick="goStep(4)" class="btn btn-primary">Next: Upload Evidence →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Evidence -->
+    <div class="section-panel" id="panel-4">
+      <div class="card" style="margin-bottom:1.5rem">
+        <h3 style="margin-bottom:0.5rem;color:var(--saffron)">📸 Upload Evidence</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem">Photos and videos strengthen your report and help others trust the data. Accepted: JPG, PNG, MP4 (max 10MB each, up to 5 files).</p>
+
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('photos-input').click()">
+          <div class="upload-icon">📸</div>
+          <p style="font-weight:600;margin-bottom:6px">Click to upload or drag & drop</p>
+          <p style="font-size:0.8rem;color:var(--text-muted)">JPG, PNG, MP4 · Up to 5 files · 10MB each</p>
+          <input type="file" id="photos-input" accept="image/*,video/mp4" multiple style="display:none" onchange="handleFileSelect(this.files)" />
+        </div>
+
+        <div id="photo-previews" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem"></div>
+
+        <!-- AI Analysis -->
+        <div style="margin-top:1.5rem;padding:1.2rem;background:rgba(138,43,226,0.05);border:1px solid rgba(138,43,226,0.2);border-radius:var(--radius)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:1.2rem">🤖</span>
+            <span style="font-size:0.85rem;font-weight:700;color:#CE93D8">AI Accessibility Analysis</span>
+            <span class="badge badge-blue" style="font-size:0.65rem">POWERED BY CLAUDE</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem">Upload a photo and let Claude AI analyze accessibility features automatically.</p>
+          <button type="button" onclick="runAIAnalysis()" class="btn btn-sm" style="background:rgba(138,43,226,0.2);border:1px solid rgba(138,43,226,0.4);color:#CE93D8" id="ai-btn">
+            🤖 Analyze with AI
+          </button>
+          <div id="ai-result"></div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="card" id="summary-card" style="margin-bottom:1.5rem;border-color:rgba(255,153,51,0.2)">
+        <h3 style="color:var(--saffron);margin-bottom:1rem">📋 Submission Summary</h3>
+        <div id="summary-content" style="font-size:0.88rem;color:var(--text-secondary);line-height:2"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button type="button" onclick="goStep(3)" class="btn btn-secondary">← Back</button>
+        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+          🚀 Submit Location Report
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/auth.js"></script>
+<script src="js/addLocation.js"></script>
+</body>
+</html>

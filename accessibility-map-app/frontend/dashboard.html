@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Sugamya Bharat</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media(max-width:768px){ .dashboard-grid{grid-template-columns:1fr;} }
+    .chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .city-bar { display: flex; flex-direction: column; gap: 12px; }
+    .city-item { display: flex; align-items: center; gap: 12px; }
+    .city-name { min-width: 100px; font-size: 0.85rem; font-weight: 600; }
+    .city-progress { flex: 1; height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
+    .city-fill { height: 100%; border-radius: 5px; transition: width 1.5s ease; }
+    .city-pct { min-width: 40px; text-align: right; font-size: 0.8rem; font-weight: 700; }
+    .contribution-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .contribution-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--saffron), var(--green)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: white; flex-shrink: 0; }
+    .type-stat { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.85rem; }
+    .recent-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+    .recent-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">♿</div>
+    <div class="nav-title"><span>Sugamya Bharat</span><span>Vikshit Bharat 2047</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="map.html">🗺️ Map</a></li>
+    <li><a href="add-location.html">➕ Add</a></li>
+    <li><a href="verify.html">✅ Verify</a></li>
+    <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-cta" id="nav-auth"></div>
+</nav>
+
+<div class="page-header">
+  <div class="section-tag">📊 Analytics</div>
+  <h1>Accessibility Dashboard</h1>
+  <p>Track India's progress toward universal accessibility under Vikshit Bharat 2047.</p>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem">
+
+  <!-- Stats Row -->
+  <div class="stats-grid" id="stats-grid" style="margin-bottom:2rem">
+    <div class="stat-card">
+      <div class="stat-number" style="background:linear-gradient(135deg,var(--saffron),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="s-total">-</div>
+      <div class="stat-label">📍 Total Locations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--fully-accessible)" id="s-verified">-</div>
+      <div class="stat-label">✅ Verified Locations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--blue-light)" id="s-users">-</div>
+      <div class="stat-label">👥 Contributors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--saffron)" id="s-rate">-</div>
+      <div class="stat-label">📈 Verification Rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--partially-accessible)" id="s-pending">-</div>
+      <div class="stat-label">⏳ Pending Review</div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="dashboard-grid" style="margin-bottom:2rem">
+
+    <!-- City Leaderboard -->
+    <div class="chart-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <h3 style="font-size:1rem;font-weight:700">🏆 City Accessibility Leaderboard</h3>
+        <span class="badge badge-saffron">Top 10</span>
+      </div>
+      <div class="city-bar" id="city-leaderboard">
+        <div style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="loader" style="margin:0 auto"></div></div>
+      </div>
+    </div>
+
+    <!-- Donut Chart -->
+    <div class="chart-card">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem">📊 Accessibility Status Distribution</h3>
+      <div style="position:relative;height:220px">
+        <canvas id="donut-chart"></canvas>
+      </div>
+      <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:1rem">
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><div style="width:10px;height:10px;border-radius:50%;background:var(--fully-accessible)"></div>Fully</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><div style="width:10px;height:10px;border-radius:50%;background:var(--partially-accessible)"></div>Partial</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><div style="width:10px;height:10px;border-radius:50%;background:var(--not-accessible)"></div>Not</div>
+      </div>
+    </div>
+
+    <!-- Location Types -->
+    <div class="chart-card">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem">📍 Locations by Type</h3>
+      <div id="type-stats">
+        <div style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="loader" style="margin:0 auto"></div></div>
+      </div>
+    </div>
+
+    <!-- Top Contributors -->
+    <div class="chart-card">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem">🌟 Top Contributors</h3>
+      <div id="top-contributors">
+        <div style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="loader" style="margin:0 auto"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bar chart - city scores -->
+  <div class="chart-card" style="margin-bottom:2rem">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem">📈 City Accessibility Scores</h3>
+    <div style="height:280px">
+      <canvas id="bar-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="chart-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h3 style="font-size:1rem;font-weight:700">⏰ Recent Contributions</h3>
+      <a href="map.html" class="btn btn-secondary btn-sm">View All →</a>
+    </div>
+    <div id="recent-locations"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

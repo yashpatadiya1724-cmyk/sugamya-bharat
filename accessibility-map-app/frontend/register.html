@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register – Sugamya Bharat</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="auth-bg"></div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">♿</div>
+    <div class="nav-title"><span>Sugamya Bharat</span><span>Vikshit Bharat 2047</span></div>
+  </a>
+  <div></div>
+  <div style="display:flex;gap:8px">
+    <a href="index.html" class="btn btn-secondary btn-sm">← Home</a>
+    <a href="login.html" class="btn btn-primary btn-sm">Login</a>
+  </div>
+</nav>
+
+<div class="auth-page">
+  <div class="auth-card fade-in" style="max-width:520px">
+    <div class="auth-header">
+      <div class="auth-logo">🇮🇳</div>
+      <h1 class="auth-title">Join Sugamya Bharat</h1>
+      <p class="auth-sub">Help make India accessible for every citizen</p>
+    </div>
+
+    <div id="error-msg" style="display:none;padding:10px 14px;background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);border-radius:8px;color:var(--not-accessible);font-size:0.85rem;margin-bottom:1.2rem"></div>
+    <div id="success-msg" style="display:none;padding:10px 14px;background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);border-radius:8px;color:var(--fully-accessible);font-size:0.85rem;margin-bottom:1.2rem"></div>
+
+    <form id="register-form">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label">Full Name <span class="required">*</span></label>
+          <input type="text" class="form-input" id="name" placeholder="Rahul Sharma" required minlength="2" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <select class="form-input" id="city">
+            <option value="">Select City</option>
+            <option>Ahmedabad</option><option>New Delhi</option><option>Mumbai</option>
+            <option>Bangalore</option><option>Chennai</option><option>Hyderabad</option>
+            <option>Pune</option><option>Kolkata</option><option>Jaipur</option>
+            <option>Lucknow</option><option>Chandigarh</option><option>Bhopal</option>
+            <option>Nagpur</option><option>Surat</option><option>Indore</option>
+            <option>Patna</option><option>Kochi</option><option>Coimbatore</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address <span class="required">*</span></label>
+        <input type="email" class="form-input" id="email" placeholder="you@example.com" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password <span class="required">*</span></label>
+        <div style="position:relative">
+          <input type="password" class="form-input" id="password" placeholder="Min 6 characters" required minlength="6" oninput="checkPasswordStrength(this.value)" />
+          <button type="button" onclick="togglePassword('password')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer">👁</button>
+        </div>
+        <div id="strength-bar" style="display:none;margin-top:8px">
+          <div class="progress-bar"><div id="strength-fill" class="progress-fill" style="width:0%;transition:width 0.3s,background 0.3s"></div></div>
+          <div id="strength-text" style="font-size:0.72rem;color:var(--text-muted);margin-top:4px"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password <span class="required">*</span></label>
+        <div style="position:relative">
+          <input type="password" class="form-input" id="confirm-password" placeholder="Repeat password" required />
+          <button type="button" onclick="togglePassword('confirm-password')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer">👁</button>
+        </div>
+      </div>
+
+      <div style="padding:14px;background:rgba(255,153,51,0.05);border:1px solid rgba(255,153,51,0.15);border-radius:var(--radius-sm);margin-bottom:1.2rem">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="agree" required style="margin-top:3px;accent-color:var(--saffron)">
+          <span style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5">
+            I agree to contribute accurate accessibility data and support the <strong style="color:var(--saffron)">Sugamya Bharat Abhiyan</strong> under Vikshit Bharat 2047.
+          </span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center" id="register-btn">
+        🚀 Join the Movement
+      </button>
+    </form>
+
+    <div class="form-divider"><span>or</span></div>
+
+    <p style="text-align:center;font-size:0.85rem;color:var(--text-muted)">
+      Already have an account? <a href="login.html" style="color:var(--saffron);text-decoration:none;font-weight:600">Login here →</a>
+    </p>
+
+    <!-- Contributor info -->
+    <div style="margin-top:2rem;padding:1.2rem;background:rgba(30,136,229,0.05);border:1px solid rgba(30,136,229,0.15);border-radius:var(--radius);text-align:center">
+      <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue-light);margin-bottom:10px">Contributor Badges</div>
+      <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="font-size:1.2rem;margin-bottom:4px">🌱</div>
+          <div style="font-size:0.7rem;color:var(--text-muted)">New Mapper</div>
+          <div style="font-size:0.65rem;color:var(--text-muted)">0+ locations</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:1.2rem;margin-bottom:4px">⭐</div>
+          <div style="font-size:0.7rem;color:var(--text-muted)">Contributor</div>
+          <div style="font-size:0.65rem;color:var(--text-muted)">10+ locations</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:1.2rem;margin-bottom:4px">🏆</div>
+          <div style="font-size:0.7rem;color:var(--text-muted)">Champion</div>
+          <div style="font-size:0.65rem;color:var(--text-muted)">50+ locations</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:1.2rem;margin-bottom:4px">♿</div>
+          <div style="font-size:0.7rem;color:var(--saffron)">Accessibility Hero</div>
+          <div style="font-size:0.65rem;color:var(--text-muted)">100+ locations</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/auth.js"></script>
+<script>
+if (isLoggedIn()) window.location = 'index.html';
+
+function togglePassword(id) {
+  const p = document.getElementById(id);
+  p.type = p.type === 'password' ? 'text' : 'password';
+}
+
+function checkPasswordStrength(pw) {
+  const bar = document.getElementById('strength-bar');
+  const fill = document.getElementById('strength-fill');
+  const text = document.getElementById('strength-text');
+  bar.style.display = pw.length ? 'block' : 'none';
+  if (!pw.length) return;
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [
+    { color: '#FF1744', label: 'Very Weak', w: '20%' },
+    { color: '#FF6D00', label: 'Weak', w: '40%' },
+    { color: '#FFD600', label: 'Fair', w: '60%' },
+    { color: '#69F0AE', label: 'Good', w: '80%' },
+    { color: '#00C853', label: 'Strong 💪', w: '100%' }
+  ];
+  const l = levels[Math.min(score - 1, 4)] || levels[0];
+  fill.style.width = l.w;
+  fill.style.background = l.color;
+  text.textContent = l.label;
+  text.style.color = l.color;
+}
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('register-btn');
+  const errDiv = document.getElementById('error-msg');
+  const sucDiv = document.getElementById('success-msg');
+  errDiv.style.display = 'none';
+  sucDiv.style.display = 'none';
+
+  const pw = document.getElementById('password').value;
+  const cpw = document.getElementById('confirm-password').value;
+  if (pw !== cpw) {
+    errDiv.textContent = 'Passwords do not match.';
+    errDiv.style.display = 'block';
+    return;
+  }
+
+  btn.innerHTML = '<span class="loader"></span> Creating Account...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: pw,
+        city: document.getElementById('city').value
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      saveAuth(data.token, data.user);
+      sucDiv.textContent = '✅ Account created! Redirecting to map...';
+      sucDiv.style.display = 'block';
+      showToast('Welcome to Sugamya Bharat, ' + data.user.name + '! 🎉', 'success');
+      setTimeout(() => window.location = 'map.html', 1200);
+    } else {
+      errDiv.textContent = data.message;
+      errDiv.style.display = 'block';
+      btn.innerHTML = '🚀 Join the Movement';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    errDiv.textContent = 'Server error. Please try again.';
+    errDiv.style.display = 'block';
+    btn.innerHTML = '🚀 Join the Movement';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

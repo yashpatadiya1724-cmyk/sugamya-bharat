@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Locations – Sugamya Bharat</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .verify-grid { display: grid; gap: 1.2rem; }
+    .verify-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: var(--transition);
+    }
+    .verify-card:hover { border-color: rgba(255,153,51,0.2); transform: translateY(-2px); }
+    .vc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .vc-title { font-family: 'Baloo 2', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .vc-meta { font-size: 0.78rem; color: var(--text-muted); }
+    .vc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .vc-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem; }
+    .vc-features { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .feature-tag {
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .feature-tag.yes { background: rgba(0,200,83,0.1); color: var(--fully-accessible); border: 1px solid rgba(0,200,83,0.2); }
+    .feature-tag.no { background: rgba(255,23,68,0.1); color: var(--not-accessible); border: 1px solid rgba(255,23,68,0.2); }
+    .vote-bar { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+    .vote-progress { flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .vote-fill-up { height: 100%; background: var(--fully-accessible); border-radius: 3px; }
+    .comment-box { margin-top: 1rem; display: none; }
+    .verify-form-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .verify-form-modal.open { opacity: 1; pointer-events: all; }
+    .filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .tab-btn { padding: 7px 16px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.82rem; cursor: pointer; transition: var(--transition); font-family: 'Mukta', sans-serif; }
+    .tab-btn.active { border-color: var(--saffron); color: var(--saffron); background: rgba(255,153,51,0.1); }
+    .leaderboard-mini { background: rgba(255,153,51,0.05); border: 1px solid rgba(255,153,51,0.15); border-radius: var(--radius); padding: 1.2rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">♿</div>
+    <div class="nav-title"><span>Sugamya Bharat</span><span>Vikshit Bharat 2047</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="map.html">🗺️ Map</a></li>
+    <li><a href="add-location.html">➕ Add</a></li>
+    <li><a href="verify.html" class="active">✅ Verify</a></li>
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-cta" id="nav-auth"></div>
+</nav>
+
+<div class="page-header">
+  <div class="section-tag">✅ Community Verification</div>
+  <h1>Verify Accessibility Reports</h1>
+  <p>Help the community by confirming or disputing accessibility claims. 5 verifications make a location <strong style="color:var(--green-light)">Verified</strong>.</p>
+</div>
+
+<div style="max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;display:grid;grid-template-columns:1fr 300px;gap:2rem;align-items:start">
+  <!-- Main content -->
+  <div>
+    <!-- Filters -->
+    <div class="filters-bar">
+      <button class="tab-btn active" onclick="loadVerifications('pending')">⏳ Pending</button>
+      <button class="tab-btn" onclick="loadVerifications('all')">🌐 All</button>
+      <button class="tab-btn" onclick="loadVerifications('verified')">✅ Verified</button>
+    </div>
+
+    <div id="verify-list" class="verify-grid">
+      <div style="text-align:center;padding:3rem">
+        <div class="loader" style="margin:0 auto"></div>
+        <p style="margin-top:1rem;color:var(--text-muted)">Loading locations...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div style="position:sticky;top:90px">
+    <!-- How it works -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <h3 style="font-size:1rem;margin-bottom:1rem;color:var(--saffron)">✅ How Verification Works</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:1.2rem;flex-shrink:0">1️⃣</span>
+          <div style="font-size:0.82rem;color:var(--text-secondary)">Review the location report and accessibility features listed.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:1.2rem;flex-shrink:0">2️⃣</span>
+          <div style="font-size:0.82rem;color:var(--text-secondary)">Click <strong style="color:var(--fully-accessible)">Confirm</strong> if you've visited and can vouch for the accessibility.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:1.2rem;flex-shrink:0">3️⃣</span>
+          <div style="font-size:0.82rem;color:var(--text-secondary)">Click <strong style="color:var(--not-accessible)">Dispute</strong> if the information is incorrect or outdated.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:1.2rem;flex-shrink:0">🏆</span>
+          <div style="font-size:0.82rem;color:var(--text-secondary)">After <strong style="color:var(--saffron)">5 verifications</strong>, the location becomes community-verified!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My stats -->
+    <div class="card" style="margin-bottom:1.5rem" id="my-stats-card">
+      <h3 style="font-size:1rem;margin-bottom:1rem;color:var(--saffron)">👤 My Contribution</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;text-align:center">
+        <div>
+          <div style="font-family:'Baloo 2',sans-serif;font-size:1.8rem;font-weight:800;color:var(--saffron)" id="my-contributions">-</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">Locations Added</div>
+        </div>
+        <div>
+          <div style="font-family:'Baloo 2',sans-serif;font-size:1.8rem;font-weight:800;color:var(--blue-light)" id="my-verifications">-</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">Verifications</div>
+        </div>
+      </div>
+      <div id="my-badge" style="margin-top:1rem;text-align:center"></div>
+    </div>
+
+    <!-- Top Verifiers -->
+    <div class="leaderboard-mini">
+      <h3 style="font-size:0.9rem;margin-bottom:1rem;color:var(--saffron)">🏆 Top Verifiers</h3>
+      <div id="top-verifiers">
+        <div style="font-size:0.8rem;color:var(--text-muted)">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Verify Modal -->
+<div class="verify-form-modal" id="verify-modal">
+  <div style="background:var(--navy-light);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:500px;padding:2rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h3 style="font-size:1.1rem;font-weight:700">Submit Verification</h3>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem">✕</button>
+    </div>
+    <div id="modal-loc-name" style="font-weight:600;margin-bottom:4px;font-size:1rem"></div>
+    <div id="modal-loc-city" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem"></div>
+
+    <div style="margin-bottom:1.2rem">
+      <label class="form-label">Your Assessment <span class="required">*</span></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label style="cursor:pointer;padding:12px;border:2px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;transition:var(--transition)" id="confirm-label">
+          <input type="radio" name="assessment" value="true" style="accent-color:var(--green)" onchange="selectAssessment('confirm')"> ✅ Confirm Accessible
+        </label>
+        <label style="cursor:pointer;padding:12px;border:2px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;transition:var(--transition)" id="dispute-label">
+          <input type="radio" name="assessment" value="false" style="accent-color:var(--not-accessible)" onchange="selectAssessment('dispute')"> ❌ Dispute Claim
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Comment (optional)</label>
+      <textarea class="form-input" id="verify-comment" placeholder="Describe your experience at this location..." rows="3"></textarea>
+    </div>
+
+    <div id="modal-error" style="display:none;color:var(--not-accessible);font-size:0.82rem;margin-bottom:1rem"></div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeModal()" class="btn btn-secondary" style="flex:1">Cancel</button>
+      <button onclick="submitVerification()" class="btn btn-primary" style="flex:2" id="verify-submit-btn">Submit Verification</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/auth.js"></script>
+<script>
+let currentLocId = null;
+let currentFilter = 'pending';
+
+async function loadVerifications(filter = 'pending') {
+  currentFilter = filter;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  event?.target?.classList.add('active');
+
+  const list = document.getElementById('verify-list');
+  list.innerHTML = `<div style="text-align:center;padding:3rem"><div class="loader" style="margin:0 auto"></div><p style="margin-top:1rem;color:var(--text-muted)">Loading...</p></div>`;
+
+  try {
+    let url = '/api/locations?limit=30';
+    if (filter === 'verified') url += '&verified=true';
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.success || !data.locations.length) {
+      list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">No locations found. <a href="add-location.html" style="color:var(--saffron)">Add the first one!</a></div>';
+      return;
+    }
+
+    // Filter by pending (not verified) if needed
+    let locs = data.locations;
+    if (filter === 'pending') locs = locs.filter(l => !l.verified);
+
+    if (!locs.length) {
+      list.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--text-muted)">No ${filter} locations found.</div>`;
+      return;
+    }
+
+    list.innerHTML = locs.map(loc => renderVerifyCard(loc)).join('');
+  } catch (e) {
+    list.innerHTML = renderDemoCards();
+  }
+}
+
+function renderVerifyCard(loc) {
+  const color = { fully_accessible: '#00C853', partially_accessible: '#FFD600', not_accessible: '#FF1744' }[loc.accessibilityStatus] || '#9AAAC8';
+  const statusLabel = { fully_accessible: '🟢 Fully', partially_accessible: '🟡 Partial', not_accessible: '🔴 None' }[loc.accessibilityStatus] || '';
+  const typeIcons = { wheelchair_ramp:'🛤️',accessible_toilet:'🚻',low_floor_bus:'🚌',metro_station:'🚇',elevator:'🛗',accessible_parking:'🅿️',hospital:'🏥',government_office:'🏛️',public_transport:'🚉',other:'📍' };
+  const up = loc.votes?.upvotes?.length || 0;
+  const down = loc.votes?.downvotes?.length || 0;
+  const total = up + down;
+  const upPct = total > 0 ? Math.round((up/total)*100) : 0;
+  const bd = loc.scoreBreakdown || {};
+  const featureTags = [
+    bd.ramp && 'Ramp', bd.elevator && 'Elevator', bd.doorWidth && 'Wide Door',
+    bd.accessibleToilet && 'Toilet', bd.accessibleParking && 'Parking',
+    bd.brailleSignage && 'Braille', bd.staffAssistance && 'Staff'
+  ].filter(Boolean);
+
+  return `
+    <div class="verify-card">
+      <div class="vc-header">
+        <div>
+          <div class="vc-title">${loc.name}</div>
+          <div class="vc-meta">📍 ${loc.city} · ${typeIcons[loc.accessibilityType] || ''} ${loc.accessibilityType?.replace(/_/g,' ') || ''} · ${loc.verificationCount || 0}/5 verifications</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:50px;height:50px;border-radius:50%;border:3px solid ${color};display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:1.1rem;font-weight:800;color:${color};flex-shrink:0">${loc.accessibilityScore || 0}</div>
+          <div style="font-size:0.65rem;color:var(--text-muted)">Score</div>
+        </div>
+      </div>
+
+      ${featureTags.length ? `<div class="vc-features">${featureTags.map(f => `<span class="feature-tag yes">✓ ${f}</span>`).join('')}</div>` : ''}
+
+      <div class="vc-body">${loc.description || 'No description provided.'}</div>
+
+      <div class="vote-bar" style="margin-bottom:1rem">
+        <span style="color:var(--fully-accessible);font-weight:600">👍 ${up}</span>
+        <div class="vote-progress"><div class="vote-fill-up" style="width:${upPct}%"></div></div>
+        <span style="color:var(--not-accessible);font-weight:600">${down} 👎</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="badge ${loc.accessibilityStatus==='fully_accessible'?'badge-green':loc.accessibilityStatus==='partially_accessible'?'badge-yellow':'badge-red'}">${statusLabel}</span>
+          ${loc.verified ? '<span class="badge badge-verified">✅ Verified</span>' : '<span class="badge badge-saffron">⏳ Needs Verification</span>'}
+        </div>
+        <div class="vc-actions">
+          <button onclick="quickVote('${loc._id}','upvote')" class="btn btn-sm btn-green">👍 Confirm</button>
+          <button onclick="quickVote('${loc._id}','downvote')" class="btn btn-sm btn-secondary">👎 Dispute</button>
+          <button onclick="openVerifyModal('${loc._id}','${loc.name.replace(/'/g,"\\'")}','${loc.city}')" class="btn btn-sm btn-primary">✅ Full Review</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDemoCards() {
+  const demo = [
+    { _id:'d1', name:'Ahmedabad Metro Station', city:'Ahmedabad', accessibilityType:'metro_station', accessibilityStatus:'fully_accessible', accessibilityScore:9, verified:false, verificationCount:3, description:'Has elevator, ramp, and tactile paths.', votes:{upvotes:[{},{},{}],downvotes:[]}, scoreBreakdown:{ramp:true,elevator:true,brailleSignage:true} },
+    { _id:'d2', name:'AIIMS Delhi Main Entrance', city:'New Delhi', accessibilityType:'hospital', accessibilityStatus:'fully_accessible', accessibilityScore:8, verified:false, verificationCount:2, description:'Comprehensive accessibility with wheelchair rental available at main gate.', votes:{upvotes:[{},{}],downvotes:[{}]}, scoreBreakdown:{ramp:true,elevator:true,wheelchairRental:true} },
+    { _id:'d3', name:'Mumbai CST Platform 1', city:'Mumbai', accessibilityType:'public_transport', accessibilityStatus:'partially_accessible', accessibilityScore:6, verified:false, verificationCount:1, description:'Platform 1 accessible, others not. Elevator available but often out of order.', votes:{upvotes:[{}],downvotes:[{}]}, scoreBreakdown:{ramp:true,elevator:true} },
+  ];
+  return demo.map(renderVerifyCard).join('');
+}
+
+async function quickVote(id, type) {
+  if (!isLoggedIn()) { showToast('Login to vote', 'info'); window.location='login.html'; return; }
+  try {
+    const res = await fetch(`/api/locations/${id}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','Authorization':'Bearer '+getToken() },
+      body: JSON.stringify({ voteType: type })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(type === 'upvote' ? '👍 Confirmed!' : '👎 Disputed!', 'success');
+      setTimeout(() => loadVerifications(currentFilter), 600);
+    } else { showToast(data.message, 'error'); }
+  } catch { showToast('Error. Try again.', 'error'); }
+}
+
+function openVerifyModal(id, name, city) {
+  if (!isLoggedIn()) { showToast('Login to verify', 'info'); window.location='login.html'; return; }
+  currentLocId = id;
+  document.getElementById('modal-loc-name').textContent = name;
+  document.getElementById('modal-loc-city').textContent = '📍 ' + city;
+  document.getElementById('verify-comment').value = '';
+  document.getElementById('modal-error').style.display = 'none';
+  document.querySelectorAll('input[name="assessment"]').forEach(r => r.checked = false);
+  ['confirm-label','dispute-label'].forEach(id => document.getElementById(id).style.borderColor = 'var(--border)');
+  document.getElementById('verify-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('verify-modal').classList.remove('open');
+}
+
+function selectAssessment(type) {
+  document.getElementById('confirm-label').style.borderColor = type === 'confirm' ? 'var(--fully-accessible)' : 'var(--border)';
+  document.getElementById('dispute-label').style.borderColor = type === 'dispute' ? 'var(--not-accessible)' : 'var(--border)';
+}
+
+async function submitVerification() {
+  const assessed = document.querySelector('input[name="assessment"]:checked');
+  const errDiv = document.getElementById('modal-error');
+  if (!assessed) { errDiv.textContent = 'Please select your assessment.'; errDiv.style.display = 'block'; return; }
+
+  const btn = document.getElementById('verify-submit-btn');
+  btn.innerHTML = '<span class="loader"></span> Submitting...';
+  btn.disabled = true;
+  errDiv.style.display = 'none';
+
+  try {
+    const res = await fetch(`/api/locations/${currentLocId}/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','Authorization':'Bearer '+getToken() },
+      body: JSON.stringify({ confirmedAccessible: assessed.value === 'true', comment: document.getElementById('verify-comment').value })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal();
+      showToast('✅ Verification submitted! Thank you.', 'success');
+      loadUserStats();
+      setTimeout(() => loadVerifications(currentFilter), 800);
+    } else { errDiv.textContent = data.message; errDiv.style.display = 'block'; }
+  } catch { errDiv.textContent = 'Network error.'; errDiv.style.display = 'block'; }
+
+  btn.innerHTML = 'Submit Verification';
+  btn.disabled = false;
+}
+
+async function loadUserStats() {
+  const user = getCurrentUser();
+  if (!user) return;
+  document.getElementById('my-contributions').textContent = user.contributionsCount || 0;
+  document.getElementById('my-verifications').textContent = user.verificationsCount || 0;
+  const badge = document.getElementById('my-badge');
+  const count = user.contributionsCount || 0;
+  if (count >= 100) badge.innerHTML = '<span class="badge badge-saffron">♿ Accessibility Hero</span>';
+  else if (count >= 50) badge.innerHTML = '<span class="badge badge-blue">🏆 Champion</span>';
+  else if (count >= 10) badge.innerHTML = '<span class="badge badge-verified">⭐ Contributor</span>';
+  else badge.innerHTML = '<span class="badge badge-saffron">🌱 New Mapper</span>';
+}
+
+async function loadTopVerifiers() {
+  try {
+    const res = await fetch('/api/locations/dashboard');
+    const data = await res.json();
+    const verifiers = document.getElementById('top-verifiers');
+    if (data.success && data.topContributors) {
+      verifiers.innerHTML = data.topContributors.map((u,i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:0.9rem;color:${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--text-muted)'}; width:20px">${i+1}</span>
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--saffron),var(--green));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:white;flex-shrink:0">${u.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()}</div>
+          <div style="flex:1;overflow:hidden">
+            <div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.name}</div>
+            <div style="font-size:0.7rem;color:var(--text-muted)">${u.contributionsCount} locations</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch {}
+}
+
+// Check for location id in URL params
+const params = new URLSearchParams(window.location.search);
+const locId = params.get('id');
+if (locId) {
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch(`/api/locations/${locId}`).then(r=>r.json()).then(data => {
+      if (data.success) openVerifyModal(data.location._id, data.location.name, data.location.city);
+    }).catch(()=>{});
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  updateNavbar();
+  loadVerifications('pending');
+  loadUserStats();
+  loadTopVerifiers();
+});
+</script>
+</body>
+</html>

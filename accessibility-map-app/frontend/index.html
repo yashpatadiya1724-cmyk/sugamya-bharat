@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sugamya Bharat – Accessibility Mapping | Vikshit Bharat 2047</title>
+  <meta name="description" content="Crowdsource and verify wheelchair-friendly public spaces and transportation across Indian cities. Vikshit Bharat 2047 – Pillar 6." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    .hero-floating-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .floating-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(10px);
+      animation: float 3s ease-in-out infinite;
+    }
+    .floating-stat:nth-child(2) { animation-delay: -1s; }
+    .floating-stat:nth-child(3) { animation-delay: -2s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .mission-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .mission-cards { grid-template-columns: 1fr; }
+    }
+    .mission-card {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+    .mission-card:hover {
+      border-color: rgba(255,153,51,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(255,153,51,0.1);
+    }
+    .mission-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .mission-card h3 { font-size: 1.1rem; margin-bottom: 0.7rem; }
+    .mission-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+    .cta-banner {
+      background: linear-gradient(135deg, rgba(255,153,51,0.1), rgba(19,136,8,0.1));
+      border: 1px solid rgba(255,153,51,0.2);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      text-align: center;
+    }
+    .types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+    .type-chip {
+      text-align: center;
+      padding: 1.2rem 0.8rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .type-chip:hover {
+      border-color: var(--saffron);
+      background: rgba(255,153,51,0.08);
+    }
+    .type-chip .icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .type-chip .label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+    #canvas-container {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    #canvas-container canvas { display: block; }
+    .canvas-label {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(5,13,26,0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">♿</div>
+    <div class="nav-title">
+      <span>Sugamya Bharat</span>
+      <span>Vikshit Bharat 2047</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">🏠 Home</a></li>
+    <li><a href="map.html">🗺️ Map</a></li>
+    <li><a href="add-location.html">➕ Add Location</a></li>
+    <li><a href="verify.html">✅ Verify</a></li>
+    <li><a href="dashboard.html">📊 Dashboard</a></li>
+  </ul>
+  <div class="nav-cta" id="nav-auth">
+    <a href="login.html" class="btn btn-secondary btn-sm">Login</a>
+    <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-text fade-in">
+      <div class="hero-badge">
+        🇮🇳 Vikshit Bharat 2047 · Pillar 6: Social Inclusion & Justice
+      </div>
+      <h1 class="hero-title">
+        Making India <span class="highlight-saffron">Accessible</span> for <span class="highlight-green">Every Citizen</span>
+      </h1>
+      <p class="hero-desc">
+        Crowdsource, verify and discover wheelchair-friendly public spaces and transportation across Indian cities. Together, we build a more inclusive India.
+      </p>
+      <div class="hero-actions">
+        <a href="map.html" class="btn btn-primary btn-lg">
+          🗺️ Explore Map
+        </a>
+        <a href="add-location.html" class="btn btn-secondary btn-lg">
+          ➕ Add Location
+        </a>
+      </div>
+      <div class="hero-floating-stats stagger-children">
+        <div class="floating-stat">
+          <span style="font-size:1.5rem">📍</span>
+          <div>
+            <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--saffron)" id="stat-locations">1,240+</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Locations Mapped</div>
+          </div>
+        </div>
+        <div class="floating-stat">
+          <span style="font-size:1.5rem">🏙️</span>
+          <div>
+            <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--green-light)" id="stat-cities">28</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Cities Covered</div>
+          </div>
+        </div>
+        <div class="floating-stat">
+          <span style="font-size:1.5rem">👥</span>
+          <div>
+            <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.1rem;color:var(--blue-light)" id="stat-users">4,500+</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Contributors</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div id="canvas-container">
+        <canvas id="three-canvas"></canvas>
+        <div class="canvas-label">♿ Interactive 3D Accessibility Globe · Drag to rotate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission Section -->
+<div style="max-width:1200px;margin:0 auto;padding:0 2rem">
+  <div class="tricolor-bar" style="margin-bottom:5rem"></div>
+</div>
+
+<section class="section" id="mission">
+  <div class="section-title">
+    <div class="section-tag">🎯 Our Mission</div>
+    <h2 class="section-heading">Breaking Barriers for <span style="color:var(--saffron)">27 Crore</span> Indians</h2>
+    <p class="section-sub">India has the world's largest differently-abled population. We're building the infrastructure data layer they deserve.</p>
+  </div>
+  <div class="mission-cards stagger-children">
+    <div class="mission-card">
+      <div class="icon">♿</div>
+      <h3>Wheelchair Access</h3>
+      <p>Map ramps, pathways, and wheelchair-friendly routes across public spaces, parks, and transit hubs.</p>
+    </div>
+    <div class="mission-card">
+      <div class="icon">🚌</div>
+      <h3>Accessible Transport</h3>
+      <p>Find low-floor buses, accessible metro stations, and inclusive public transport options near you.</p>
+    </div>
+    <div class="mission-card">
+      <div class="icon">🏥</div>
+      <h3>Critical Services</h3>
+      <p>Locate accessible hospitals, government offices, and essential services that accommodate all citizens.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Accessibility Types -->
+<section class="section">
+  <div class="section-title">
+    <div class="section-tag">📍 Categories</div>
+    <h2 class="section-heading">What We Map</h2>
+  </div>
+  <div class="types-grid">
+    <div class="type-chip" onclick="window.location='map.html?type=wheelchair_ramp'">
+      <div class="icon">🛤️</div>
+      <div class="label">Wheelchair Ramps</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=accessible_toilet'">
+      <div class="icon">🚻</div>
+      <div class="label">Accessible Toilets</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=low_floor_bus'">
+      <div class="icon">🚌</div>
+      <div class="label">Low-Floor Buses</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=metro_station'">
+      <div class="icon">🚇</div>
+      <div class="label">Metro Access</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=elevator'">
+      <div class="icon">🛗</div>
+      <div class="label">Elevators</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=accessible_parking'">
+      <div class="icon">🅿️</div>
+      <div class="label">Accessible Parking</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=hospital'">
+      <div class="icon">🏥</div>
+      <div class="label">Hospitals</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=government_office'">
+      <div class="icon">🏛️</div>
+      <div class="label">Govt. Offices</div>
+    </div>
+    <div class="type-chip" onclick="window.location='map.html?type=public_transport'">
+      <div class="icon">🚉</div>
+      <div class="label">Public Transport</div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="section">
+  <div class="section-title">
+    <div class="section-tag">⚡ Features</div>
+    <h2 class="section-heading">Built for <span style="color:var(--saffron)">Inclusion</span></h2>
+    <p class="section-sub">A platform designed with and for differently-abled citizens of India.</p>
+  </div>
+  <div class="features-grid stagger-children">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,153,51,0.1)">🗺️</div>
+      <h3>Interactive Accessibility Map</h3>
+      <p>Real-time map with color-coded markers showing fully, partially, or inaccessible locations across 28 Indian cities.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(19,136,8,0.1)">✅</div>
+      <h3>Community Verification</h3>
+      <p>5-verification system ensures data accuracy. Upvote, downvote, and confirm accessibility claims with photo evidence.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(30,136,229,0.1)">📊</div>
+      <h3>Accessibility Score</h3>
+      <p>10-point scoring across ramps, elevators, toilet access, door width, braille signage, and staff assistance.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,215,0,0.1)">📸</div>
+      <h3>Photo Evidence Upload</h3>
+      <p>Upload photos and short videos to prove accessibility claims. Builds trust and helps users make informed decisions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,23,68,0.1)">🏆</div>
+      <h3>City Leaderboard</h3>
+      <p>Track which Indian cities lead in accessibility. Gamified civic participation drives improvement nationwide.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(138,43,226,0.1)">🤖</div>
+      <h3>AI Accessibility Analysis</h3>
+      <p>Claude AI analyzes uploaded photos to auto-detect accessibility features and suggest improvements.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Vikshit Bharat Section -->
+<section class="section">
+  <div class="vikshit-section">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;position:relative;z-index:1">
+      <div>
+        <div class="section-tag" style="margin-bottom:1rem">🇮🇳 Vikshit Bharat 2047</div>
+        <h2 style="font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:800;margin-bottom:1.2rem">
+          Pillar 6: <span style="color:var(--saffron)">Social Inclusion</span> & Justice
+        </h2>
+        <p style="color:var(--text-secondary);line-height:1.8;margin-bottom:1.5rem;font-size:0.95rem">
+          India's vision of becoming a developed nation by 2047 requires that progress reaches every citizen. 
+          Under Nari Shakti and Sugamya Bharat, we commit to an India where no one is left behind—
+          where differently-abled, elderly, and marginalized communities enjoy equal access to public life.
+        </p>
+        <p style="color:var(--text-secondary);line-height:1.8;font-size:0.95rem">
+          <strong style="color:var(--saffron)">Sugamya Bharat Abhiyan</strong> aims to make 
+          public spaces, transport, and digital infrastructure universally accessible. 
+          This platform is our contribution to that mission.
+        </p>
+        <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap">
+          <a href="map.html" class="btn btn-primary">Explore Map →</a>
+          <a href="dashboard.html" class="btn btn-secondary">View Progress →</a>
+        </div>
+      </div>
+      <div>
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-num">Pillar 1</div>
+            <span class="pillar-icon">🏭</span>
+            <div class="pillar-name">Economy & Growth</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-num">Pillar 2</div>
+            <span class="pillar-icon">🌾</span>
+            <div class="pillar-name">Agriculture</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-num">Pillar 3</div>
+            <span class="pillar-icon">📚</span>
+            <div class="pillar-name">Education</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-num">Pillar 4</div>
+            <span class="pillar-icon">🏥</span>
+            <div class="pillar-name">Healthcare</div>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-num">Pillar 5</div>
+            <span class="pillar-icon">🌱</span>
+            <div class="pillar-name">Environment</div>
+          </div>
+          <div class="pillar-card active">
+            <div class="pillar-num">Pillar 6 ★</div>
+            <span class="pillar-icon">♿</span>
+            <div class="pillar-name">Social Inclusion</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+  <div class="cta-banner">
+    <div style="font-size:3rem;margin-bottom:1rem">🇮🇳</div>
+    <h2 style="font-size:2rem;font-weight:800;margin-bottom:1rem">
+      Join the <span class="india-text">Sugamya Bharat</span> Movement
+    </h2>
+    <p style="color:var(--text-secondary);max-width:500px;margin:0 auto 2rem;line-height:1.7">
+      Every location you add, every verification you confirm, makes India more accessible for 27 crore differently-abled citizens.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="register.html" class="btn btn-primary btn-lg">🚀 Start Contributing</a>
+      <a href="map.html" class="btn btn-outline-saffron btn-lg">🗺️ View Map</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">♿ Sugamya Bharat</div>
+      <p>A crowdsourced accessibility mapping platform for India, built under the Vikshit Bharat 2047 initiative – Pillar 6: Social Inclusion & Justice.</p>
+      <div style="margin-top:1rem">
+        <div class="tricolor-bar" style="width:120px"></div>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">Navigate</div>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="map.html">Accessibility Map</a></li>
+        <li><a href="add-location.html">Add Location</a></li>
+        <li><a href="verify.html">Verify Locations</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-title">Account</div>
+      <ul class="footer-links">
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="admin.html">Admin Panel</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-title">Initiative</div>
+      <ul class="footer-links">
+        <li><a href="#">Sugamya Bharat Abhiyan</a></li>
+        <li><a href="#">Vikshit Bharat 2047</a></li>
+        <li><a href="#">Nari Shakti</a></li>
+        <li><a href="#">RPWD Act 2016</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 Sugamya Bharat. Built for Vikshit Bharat 2047 Hackathon.</p>
+    <p>🇮🇳 Jai Hind · Making India Accessible for All</p>
+  </div>
+</footer>
+
+<div id="toast-container"></div>
+
+<script src="js/auth.js"></script>
+<script>
+// Three.js 3D Globe
+(function() {
+  const canvas = document.getElementById('three-canvas');
+  const container = document.getElementById('canvas-container');
+  const w = container.clientWidth;
+  const h = 480;
+  canvas.width = w;
+  canvas.height = h;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+  camera.position.z = 2.8;
+
+  // Globe
+  const geo = new THREE.SphereGeometry(1, 64, 64);
+  const mat = new THREE.MeshPhongMaterial({
+    color: 0x0a1628,
+    emissive: 0x051020,
+    shininess: 50,
+    wireframe: false,
+  });
+  const globe = new THREE.Mesh(geo, mat);
+  scene.add(globe);
+
+  // Wireframe overlay
+  const wireMat = new THREE.MeshBasicMaterial({
+    color: 0x1E88E5,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.07
+  });
+  const wireGlobe = new THREE.Mesh(new THREE.SphereGeometry(1.001, 32, 32), wireMat);
+  scene.add(wireGlobe);
+
+  // Atmosphere glow
+  const atmGeo = new THREE.SphereGeometry(1.06, 64, 64);
+  const atmMat = new THREE.MeshPhongMaterial({
+    color: 0xFF9933,
+    transparent: true,
+    opacity: 0.06,
+    side: THREE.FrontSide
+  });
+  scene.add(new THREE.Mesh(atmGeo, atmMat));
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0x223366, 0.8));
+  const sun = new THREE.DirectionalLight(0xFF9933, 1.2);
+  sun.position.set(3, 2, 3);
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight(0x138808, 0.4);
+  fill.position.set(-3, -1, -2);
+  scene.add(fill);
+
+  // Pins for Indian cities
+  const cityPins = [
+    { lat: 28.61, lng: 77.20, color: 0x00C853, label: 'Delhi' },
+    { lat: 19.07, lng: 72.87, color: 0xFF9933, label: 'Mumbai' },
+    { lat: 23.02, lng: 72.57, color: 0x00C853, label: 'Ahmedabad' },
+    { lat: 12.97, lng: 77.59, color: 0x00C853, label: 'Bangalore' },
+    { lat: 13.08, lng: 80.27, color: 0xFFD600, label: 'Chennai' },
+    { lat: 17.44, lng: 78.38, color: 0x00C853, label: 'Hyderabad' },
+    { lat: 18.52, lng: 73.85, color: 0xFFD600, label: 'Pune' },
+    { lat: 22.57, lng: 88.36, color: 0xFFD600, label: 'Kolkata' },
+    { lat: 26.85, lng: 80.95, color: 0xFF1744, label: 'Lucknow' },
+    { lat: 21.14, lng: 79.08, color: 0x00C853, label: 'Nagpur' },
+  ];
+
+  function latLngToVec3(lat, lng, r = 1.02) {
+    const phi = (90 - lat) * Math.PI / 180;
+    const theta = (lng + 180) * Math.PI / 180;
+    return new THREE.Vector3(
+      -r * Math.sin(phi) * Math.cos(theta),
+      r * Math.cos(phi),
+      r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  const pinGroup = new THREE.Group();
+  cityPins.forEach(city => {
+    const pos = latLngToVec3(city.lat, city.lng);
+    const pinGeo = new THREE.SphereGeometry(0.025, 8, 8);
+    const pinMat = new THREE.MeshBasicMaterial({ color: city.color });
+    const pin = new THREE.Mesh(pinGeo, pinMat);
+    pin.position.copy(pos);
+    pinGroup.add(pin);
+
+    // Pulse ring
+    const ringGeo = new THREE.RingGeometry(0.03, 0.05, 16);
+    const ringMat = new THREE.MeshBasicMaterial({ color: city.color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.copy(pos);
+    ring.lookAt(new THREE.Vector3(0, 0, 0));
+    ring.userData.baseScale = 1;
+    ring.userData.t = Math.random() * Math.PI * 2;
+    pinGroup.add(ring);
+  });
+  scene.add(pinGroup);
+
+  // Orbit
+  let isDragging = false;
+  let prevMouse = { x: 0, y: 0 };
+  let rotVel = { x: 0, y: 0 };
+  let rotX = 0.3, rotY = 0.5;
+
+  canvas.addEventListener('mousedown', e => {
+    isDragging = true;
+    prevMouse = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('mouseup', () => isDragging = false);
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevMouse.x;
+    const dy = e.clientY - prevMouse.y;
+    rotVel.x = dy * 0.004;
+    rotVel.y = dx * 0.004;
+    rotX += rotVel.x;
+    rotY += rotVel.y;
+    prevMouse = { x: e.clientX, y: e.clientY };
+  });
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.01;
+    if (!isDragging) {
+      rotY += 0.003;
+      rotVel.x *= 0.95;
+      rotVel.y *= 0.95;
+    }
+    globe.rotation.x = rotX;
+    globe.rotation.y = rotY;
+    wireGlobe.rotation.x = rotX;
+    wireGlobe.rotation.y = rotY;
+    pinGroup.rotation.x = rotX;
+    pinGroup.rotation.y = rotY;
+
+    // Pulse rings
+    pinGroup.children.forEach(child => {
+      if (child.userData.t !== undefined) {
+        child.userData.t += 0.05;
+        const s = 1 + 0.4 * Math.sin(child.userData.t);
+        child.scale.set(s, s, s);
+        child.material.opacity = 0.3 + 0.3 * Math.sin(child.userData.t);
+      }
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Navbar scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // Load live stats
+  fetch('/api/locations/dashboard').then(r => r.json()).then(data => {
+    if (data.success) {
+      const s = data.stats;
+      document.getElementById('stat-locations').textContent = (s.totalLocations || 0).toLocaleString('en-IN') + '+';
+      document.getElementById('stat-cities').textContent = (data.cityStats?.length || 0);
+      document.getElementById('stat-users').textContent = (s.totalUsers || 0).toLocaleString('en-IN') + '+';
+    }
+  }).catch(() => {});
+})();
+</script>
+</body>
+</html>
